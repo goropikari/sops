@@ -53,6 +53,29 @@ deployment issues, but the Python branch still exists under ``python-sops``. We
 will keep maintaining it for a while, and you can still ``pip install sops``,
 but we strongly recommend you use the Go version instead.
 
+Build for localstack
+~~~~~~~~~~~~~~~~~~
+
+Set `AWS_ENDPOINT_URL` environment variable to connect localstack.
+
+.. code:: bash
+
+	$ docker build -t sops -f Dockerfile-localstack .
+	$ id=$(docker create sops)
+	$ docker cp $id:/go/bin/sops sops-localstack
+	$ docker rm -v $id
+
+	$ docker run --rm -p 4566:4566 localstack/localstack:0.12.4
+	$ export AWS_ENDPOINT_URL=http://localhost:4566
+	$ alias awsl="aws --endpoint-url $AWS_ENDPOINT_URL"
+	$ keyarn=$(awsl kms create-key --query KeyMetadata.Arn --output text)
+	$ export SOPS_KMS_ARN=$keyarn
+	$ ./sops-localstack foo.json
+	$ ./sops-localstack -d foo.json
+	{
+		"hello": "localstack"
+	}
+
 .. sectnum::
 .. contents:: Table of Contents
 

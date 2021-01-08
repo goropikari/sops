@@ -193,7 +193,10 @@ func (key MasterKey) createSession() (*session.Session, error) {
 		return nil, fmt.Errorf("No valid ARN found in %q", key.Arn)
 	}
 
-	config := aws.Config{Region: aws.String(matches[1])}
+	config := aws.Config{
+		Region:   aws.String(matches[1]),
+		Endpoint: aws.String(os.Getenv("AWS_ENDPOINT_URL")),
+	}
 
 	opts := session.Options{
 		Profile:                 key.AwsProfile,
